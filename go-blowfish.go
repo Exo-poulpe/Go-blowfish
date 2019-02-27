@@ -32,7 +32,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	fmt.Println("Start")
+	fmt.Println("Start blowfish encryption")
 	start := time.Now()
 	key := []byte(strKey)
 	data := []byte(strData)
@@ -49,10 +49,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(decryptedVal)
 
-	elapsed := time.Since(start)
-	fmt.Printf("Time elapsed %s\n", elapsed)
+	fmt.Printf("Time elapsed : %s", time.Since(start))
 	if fVerbose == true {
 		fmt.Printf("Data \t : %s \nKey \t : %s \nResult encrypt : %s\nResult decrypt : %s\nEnd\n",
 			string(data), string(key), ByteToHex(encryptedVal), decryptedVal)
