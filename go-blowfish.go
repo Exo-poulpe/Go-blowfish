@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -14,21 +15,25 @@ import (
 var (
 	strData  string
 	strKey   string
+	fFlag    string
 	fVerbose bool
+	fHelp    bool
 )
 
 func init() {
 	flag.StringVar(&strData, "d", "", "Data to encrypt")
 	flag.StringVar(&strKey, "k", "", "Key for encryption")
+	flag.StringVar(&fFlag, "f", "", "file to encrypt")
 	flag.BoolVar(&fVerbose, "v", false, "For activate verbose mode")
+	flag.BoolVar(&fHelp, "h", false, "Show this help")
 }
 
 func main() {
 
 	flag.Parse()
 
-	if strData == "" || strData == "" {
-		println("Please " + os.Args[0] + " -h")
+	if (strData == "" && fFlag == "") || strKey == "" || fHelp == true {
+		flag.Usage()
 		os.Exit(0)
 	}
 
@@ -39,18 +44,32 @@ func main() {
 	var encryptedVal []byte
 	var decryptedVal []byte
 
-	encryptedVal, err := encrypt(data, key)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(ByteToHex(encryptedVal))
+	if strData != "" && fFlag == "" {
+		encryptedVal, err := encryptText(data, key)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Encrypted text : " + ByteToHex(encryptedVal))
 
-	decryptedVal, err = decrypt(encryptedVal, key)
-	if err != nil {
-		panic(err)
+		decryptedVal, err = decryptText(encryptedVal, key)
+		if err != nil {
+			panic(err)
+		}
+	} else if fFlag != "" {
+		encryptedVal, err := encryptFile(fFlag, key)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Encrypted file : " + ByteToHex(encryptedVal))
+		decryptedVal, err := ioutil.ReadFile(fFlag)
+		if err != nil {
+			panic(err)
+		}
+		decryptedVal = decryptedVal
+
 	}
 
-	fmt.Printf("Time elapsed : %s", time.Since(start))
+	fmt.Printf("Time elapsed : %s\n", time.Since(start))
 	if fVerbose == true {
 		fmt.Printf("Data \t : %s \nKey \t : %s \nResult encrypt : %s\nResult decrypt : %s\nEnd\n",
 			string(data), string(key), ByteToHex(encryptedVal), decryptedVal)
@@ -80,7 +99,7 @@ func checksizeAndPad(plaintext []byte) []byte {
 }
 
 // encrypt data to blowfish algo
-func encrypt(plaintext []byte, key []byte) ([]byte, error) {
+func encryptText(plaintext []byte, key []byte) ([]byte, error) {
 	var iv = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
 	plaintext = checksizeAndPad(plaintext)
@@ -99,7 +118,7 @@ func encrypt(plaintext []byte, key []byte) ([]byte, error) {
 }
 
 // Decrypt data to blowfish algo
-func decrypt(ciphertext []byte, key []byte) ([]byte, error) {
+func decryptText(ciphertext []byte, key []byte) ([]byte, error) {
 	var iv = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
 	dcipher, err := blowfish.NewCipher(key)
@@ -116,4 +135,26 @@ func decrypt(ciphertext []byte, key []byte) ([]byte, error) {
 	dcbc.CryptBlocks(decrypted, decrypted)
 
 	return decrypted, nil
+}
+
+func encryptFile(filePath string, key []byte) ([]byte, error) {
+	var iv = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+
+	plaintext, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(err)
+	}
+	plaintext = checksizeAndPad(plaintext)
+
+	cip, err := blowfish.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+
+	ciphertext := make([]byte, blowfish.BlockSize+len(plaintext))
+
+	ecbc := cipher.NewCBCEncrypter(cip, iv)
+	ecbc.CryptBlocks(ciphertext[blowfish.BlockSize:], plaintext)
+
+	return ciphertext, nil
 }
