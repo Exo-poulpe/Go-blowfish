@@ -7,6 +7,7 @@
 Download the binaries from foldes (Windows/Linux/MacOS).
 
 ### Usage/Help ###
+```
 Usage of Windows\WindowsAmd64.exe:
   -d string
         Data to encrypt
@@ -16,3 +17,4 @@ Usage of Windows\WindowsAmd64.exe:
   -k string
         Key for encryption
   -v    For activate verbose mode
+```
