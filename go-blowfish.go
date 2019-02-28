@@ -20,6 +20,7 @@ var (
 	fCrypt      int
 	fVerbose    bool
 	fHelp       bool
+	fDevices    bool
 
 	encryptedVal []byte
 	decryptedVal []byte
@@ -33,6 +34,7 @@ func init() {
 	flag.StringVar(&fOutPutFile, "o", "", "file to write data encrypted")
 	flag.BoolVar(&fVerbose, "v", false, "For activate verbose mode")
 	flag.IntVar(&fCrypt, "m", -1, "1 for encryption 2 for decryption")
+	flag.BoolVar(&fDevices, "list_devices", false, "list all devices on system")
 	flag.BoolVar(&fHelp, "h", false, "Show this help")
 }
 
@@ -40,6 +42,10 @@ func main() {
 
 	flag.Parse()
 
+	if fDevices == true {
+		fmt.Println(Getdrives())
+		os.Exit(0)
+	}
 	if (strData == "" && fFile == "") || strKey == "" || fHelp == true || fCrypt == -1 {
 		flag.Usage()
 		os.Exit(0)
@@ -80,20 +86,6 @@ func main() {
 		}
 
 	}
-
-	// else if fFlag != "" {
-	// 	encryptedVal, err := encryptFile(fFlag, key)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	fmt.Println("Encrypted file : " + ByteToHex(encryptedVal))
-	// 	decryptedVal, err := ioutil.ReadFile(fFlag)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	decryptedVal = decryptedVal
-
-	// }
 
 	if fVerbose == true {
 		if fCrypt == 1 {
@@ -225,4 +217,21 @@ func decryptFile(filePath string, key []byte) ([]byte, error) {
 	dcbc.CryptBlocks(decrypted, decrypted)
 
 	return decrypted, nil
+}
+
+func Getdrives() (r []string) {
+	for _, drive := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
+		_, err := os.Open(string(drive) + ":\\")
+		if err == nil {
+			r = append(r, string(drive))
+		}
+	}
+	return
+}
+
+func EncryptDevice(label string) {
+
+	// for i, item := range files {
+
+	// }
 }

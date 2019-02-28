@@ -4,7 +4,7 @@
 
 ### Installation ###
 
-Download the binaries from foldes (Windows/Linux/MacOS).
+Download the binaries from folder (Windows/Linux/MacOS).
 
 ### Usage/Help ###
 ```
@@ -16,7 +16,11 @@ Usage of Windows\WindowsAmd64.exe:
   -h    Show this help
   -k string
         Key for encryption
+  -list_devices
+        list all devices on system
   -m int
         1 for encryption 2 for decryption (default -1)
+  -o string
+        file to write data encrypted
   -v    For activate verbose mode
 ```
