@@ -16,5 +16,7 @@ Usage of Windows\WindowsAmd64.exe:
   -h    Show this help
   -k string
         Key for encryption
+  -m int
+        1 for encryption 2 for decryption (default -1)
   -v    For activate verbose mode
 ```

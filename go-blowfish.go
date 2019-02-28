@@ -30,7 +30,7 @@ func init() {
 	flag.StringVar(&strKey, "k", "", "Key for encryption")
 	flag.StringVar(&fFlag, "f", "", "file to encrypt")
 	flag.BoolVar(&fVerbose, "v", false, "For activate verbose mode")
-	flag.IntVar(&fCrypt, "m", -1, "0 for encryption 1 for decryption")
+	flag.IntVar(&fCrypt, "m", -1, "1 for encryption 2 for decryption")
 	flag.BoolVar(&fHelp, "h", false, "Show this help")
 }
 
@@ -48,7 +48,7 @@ func main() {
 	key := []byte(strKey)
 	data := []byte(strData)
 
-	fmt.Println(base64.StdEncoding.DecodeString(strData))
+	//fmt.Println(base64.StdEncoding.DecodeString(strData))
 
 	if fCrypt == 1 {
 		encryptedVal, err = encryptText(data, key)
@@ -78,8 +78,14 @@ func main() {
 	// }
 
 	if fVerbose == true {
-		fmt.Printf("Data \t : %s \nKey \t : %s \nResult encrypt : %s\nResult decrypt : %s\nEnd\n",
-			string(data), string(key), ByteToHex(encryptedVal), decryptedVal)
+		if fCrypt == 1 {
+			fmt.Printf("Data \t : %s \nKey \t : %s \nResult encrypt : %s\n",
+				string(data), string(key), ByteToHex(encryptedVal))
+		} else if fCrypt == 2 {
+			fmt.Printf("Data \t : %s \nKey \t : %s \nResult decrypt : %s\n",
+				string(data), string(key), decryptedVal)
+		}
+
 	} else {
 		fmt.Printf("Result : %s\n", ByteToHex(encryptedVal))
 	}
