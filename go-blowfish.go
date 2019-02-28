@@ -13,12 +13,13 @@ import (
 )
 
 var (
-	strData  string
-	strKey   string
-	fFlag    string
-	fCrypt   int
-	fVerbose bool
-	fHelp    bool
+	strData     string
+	strKey      string
+	fFile       string
+	fOutPutFile string
+	fCrypt      int
+	fVerbose    bool
+	fHelp       bool
 
 	encryptedVal []byte
 	decryptedVal []byte
@@ -28,7 +29,8 @@ var (
 func init() {
 	flag.StringVar(&strData, "d", "", "Data to encrypt")
 	flag.StringVar(&strKey, "k", "", "Key for encryption")
-	flag.StringVar(&fFlag, "f", "", "file to encrypt")
+	flag.StringVar(&fFile, "f", "", "file to encrypt")
+	flag.StringVar(&fOutPutFile, "o", "", "file to write data encrypted")
 	flag.BoolVar(&fVerbose, "v", false, "For activate verbose mode")
 	flag.IntVar(&fCrypt, "m", -1, "1 for encryption 2 for decryption")
 	flag.BoolVar(&fHelp, "h", false, "Show this help")
@@ -38,7 +40,7 @@ func main() {
 
 	flag.Parse()
 
-	if (strData == "" && fFlag == "") || strKey == "" || fHelp == true || fCrypt == -1 {
+	if (strData == "" && fFile == "") || strKey == "" || fHelp == true || fCrypt == -1 {
 		flag.Usage()
 		os.Exit(0)
 	}
@@ -51,16 +53,32 @@ func main() {
 	//fmt.Println(base64.StdEncoding.DecodeString(strData))
 
 	if fCrypt == 1 {
-		encryptedVal, err = encryptText(data, key)
-		if err != nil {
-			panic(err)
+		if fFile != "" {
+			encryptedVal, err = encryptFile(fFile, key)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			encryptedVal, err = encryptText(data, key)
+			if err != nil {
+				panic(err)
+			}
 		}
+
 	} else if fCrypt == 2 {
-		data, err := base64.StdEncoding.DecodeString(strData)
-		decryptedVal, err = decryptText(data, key)
-		if err != nil {
-			panic(err)
+		if fFile != "" {
+			decryptedVal, err = decryptFile(fFile, key)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			data, err := base64.StdEncoding.DecodeString(strData)
+			decryptedVal, err = decryptText(data, key)
+			if err != nil {
+				panic(err)
+			}
 		}
+
 	}
 
 	// else if fFlag != "" {
@@ -86,10 +104,22 @@ func main() {
 				string(data), string(key), decryptedVal)
 		}
 
-	} else {
-		fmt.Printf("Result : %s\n", ByteToHex(encryptedVal))
 	}
 	fmt.Printf("Time elapsed \t : %s\n", time.Since(start))
+	if fOutPutFile != "" {
+		if fCrypt == 1 {
+			err = ioutil.WriteFile(fOutPutFile, encryptedVal, 7777)
+			if err != nil {
+				panic(err)
+			}
+		} else if fCrypt == 2 {
+			err = ioutil.WriteFile(fOutPutFile, decryptedVal, 7777)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+	}
 
 }
 
@@ -173,4 +203,26 @@ func encryptFile(filePath string, key []byte) ([]byte, error) {
 	ecbc.CryptBlocks(ciphertext[blowfish.BlockSize:], plaintext)
 
 	return ciphertext, nil
+}
+
+func decryptFile(filePath string, key []byte) ([]byte, error) {
+	var iv = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+
+	dcipher, err := blowfish.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+	ciphertext, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(err)
+	}
+	decrypted := ciphertext[blowfish.BlockSize:]
+	if len(decrypted)%blowfish.BlockSize != 0 {
+		panic("is not valid for decrypt (not multipl of blowfish.BlockSize)")
+	}
+
+	dcbc := cipher.NewCBCDecrypter(dcipher, iv)
+	dcbc.CryptBlocks(decrypted, decrypted)
+
+	return decrypted, nil
 }
