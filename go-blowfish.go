@@ -1,3 +1,9 @@
+/*
+* Author : Exo-poulpe
+* Date : 2019-02-21
+* Description : This program in future can crypt all file in device with
+* Version : 0.0.4.8
+ */
 package main
 
 import (
@@ -52,6 +58,7 @@ func main() {
 	}
 
 	fmt.Println("Start blowfish encryption")
+	fmt.Printf("Started \t : %d:%d:%d %d\n", time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Year())
 	start := time.Now()
 	key := []byte(strKey)
 	data := []byte(strData)
@@ -109,6 +116,7 @@ func main() {
 		}
 
 	}
+	fmt.Printf("Stopped \t : %d:%d:%d %d\n", time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Year())
 	fmt.Printf("Time elapsed \t : %s\n", time.Since(start))
 
 }

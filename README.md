@@ -24,3 +24,7 @@ Usage of Windows\WindowsAmd64.exe:
         file to write data encrypted
   -v    For activate verbose mode
 ```
+### Benchmark/Time ###
+
+Encryption : 1 GB = 6 minutes
+Encryption : 100 MB = 30 seconds
