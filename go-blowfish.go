@@ -34,7 +34,7 @@ func init() {
 	flag.StringVar(&fOutPutFile, "o", "", "file to write data encrypted")
 	flag.BoolVar(&fVerbose, "v", false, "For activate verbose mode")
 	flag.IntVar(&fCrypt, "m", -1, "1 for encryption 2 for decryption")
-	flag.BoolVar(&fDevices, "list_devices", false, "list all devices on system")
+	flag.BoolVar(&fDevices, "list-devices", false, "list all devices on system")
 	flag.BoolVar(&fHelp, "h", false, "Show this help")
 }
 
@@ -55,8 +55,6 @@ func main() {
 	start := time.Now()
 	key := []byte(strKey)
 	data := []byte(strData)
-
-	//fmt.Println(base64.StdEncoding.DecodeString(strData))
 
 	if fCrypt == 1 {
 		if fFile != "" {
@@ -97,7 +95,6 @@ func main() {
 		}
 
 	}
-	fmt.Printf("Time elapsed \t : %s\n", time.Since(start))
 	if fOutPutFile != "" {
 		if fCrypt == 1 {
 			err = ioutil.WriteFile(fOutPutFile, encryptedVal, 7777)
@@ -112,6 +109,7 @@ func main() {
 		}
 
 	}
+	fmt.Printf("Time elapsed \t : %s\n", time.Since(start))
 
 }
 
@@ -175,6 +173,7 @@ func decryptText(ciphertext []byte, key []byte) ([]byte, error) {
 	return decrypted, nil
 }
 
+// Read file and encrypt then
 func encryptFile(filePath string, key []byte) ([]byte, error) {
 	var iv = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
@@ -197,6 +196,7 @@ func encryptFile(filePath string, key []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
+// Read file and decrypt then
 func decryptFile(filePath string, key []byte) ([]byte, error) {
 	var iv = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
@@ -219,11 +219,12 @@ func decryptFile(filePath string, key []byte) ([]byte, error) {
 	return decrypted, nil
 }
 
+// Test all drives possibilites
 func Getdrives() (r []string) {
 	for _, drive := range "ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
 		_, err := os.Open(string(drive) + ":\\")
 		if err == nil {
-			r = append(r, string(drive))
+			r = append(r, " ["+string(drive)+":\\\\] ")
 		}
 	}
 	return
@@ -232,6 +233,6 @@ func Getdrives() (r []string) {
 func EncryptDevice(label string) {
 
 	// for i, item := range files {
-
+	//
 	// }
 }
