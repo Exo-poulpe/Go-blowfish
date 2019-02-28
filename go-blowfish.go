@@ -48,13 +48,16 @@ func main() {
 	key := []byte(strKey)
 	data := []byte(strData)
 
+	fmt.Println(base64.StdEncoding.DecodeString(strData))
+
 	if fCrypt == 1 {
 		encryptedVal, err = encryptText(data, key)
 		if err != nil {
 			panic(err)
 		}
-	} else {
-		decryptedVal, err = decryptText(encryptedVal, key)
+	} else if fCrypt == 2 {
+		data, err := base64.StdEncoding.DecodeString(strData)
+		decryptedVal, err = decryptText(data, key)
 		if err != nil {
 			panic(err)
 		}
