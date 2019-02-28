@@ -16,8 +16,13 @@ var (
 	strData  string
 	strKey   string
 	fFlag    string
+	fCrypt   int
 	fVerbose bool
 	fHelp    bool
+
+	encryptedVal []byte
+	decryptedVal []byte
+	err          error
 )
 
 func init() {
@@ -25,6 +30,7 @@ func init() {
 	flag.StringVar(&strKey, "k", "", "Key for encryption")
 	flag.StringVar(&fFlag, "f", "", "file to encrypt")
 	flag.BoolVar(&fVerbose, "v", false, "For activate verbose mode")
+	flag.IntVar(&fCrypt, "m", -1, "0 for encryption 1 for decryption")
 	flag.BoolVar(&fHelp, "h", false, "Show this help")
 }
 
@@ -32,7 +38,7 @@ func main() {
 
 	flag.Parse()
 
-	if (strData == "" && fFlag == "") || strKey == "" || fHelp == true {
+	if (strData == "" && fFlag == "") || strKey == "" || fHelp == true || fCrypt == -1 {
 		flag.Usage()
 		os.Exit(0)
 	}
@@ -41,39 +47,40 @@ func main() {
 	start := time.Now()
 	key := []byte(strKey)
 	data := []byte(strData)
-	var encryptedVal []byte
-	var decryptedVal []byte
 
-	if strData != "" && fFlag == "" {
-		encryptedVal, err := encryptText(data, key)
+	if fCrypt == 1 {
+		encryptedVal, err = encryptText(data, key)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("Encrypted text : " + ByteToHex(encryptedVal))
-
+	} else {
 		decryptedVal, err = decryptText(encryptedVal, key)
 		if err != nil {
 			panic(err)
 		}
-	} else if fFlag != "" {
-		encryptedVal, err := encryptFile(fFlag, key)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("Encrypted file : " + ByteToHex(encryptedVal))
-		decryptedVal, err := ioutil.ReadFile(fFlag)
-		if err != nil {
-			panic(err)
-		}
-		decryptedVal = decryptedVal
-
 	}
 
-	fmt.Printf("Time elapsed : %s\n", time.Since(start))
+	// else if fFlag != "" {
+	// 	encryptedVal, err := encryptFile(fFlag, key)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	fmt.Println("Encrypted file : " + ByteToHex(encryptedVal))
+	// 	decryptedVal, err := ioutil.ReadFile(fFlag)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	decryptedVal = decryptedVal
+
+	// }
+
 	if fVerbose == true {
 		fmt.Printf("Data \t : %s \nKey \t : %s \nResult encrypt : %s\nResult decrypt : %s\nEnd\n",
 			string(data), string(key), ByteToHex(encryptedVal), decryptedVal)
+	} else {
+		fmt.Printf("Result : %s\n", ByteToHex(encryptedVal))
 	}
+	fmt.Printf("Time elapsed \t : %s\n", time.Since(start))
 
 }
 
